@@ -9,6 +9,7 @@ use crossterm::event::{self, Event, KeyCode};
 use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::{terminal, ExecutableCommand};
 use invaders::frame::{new_frame, Drawable};
+use invaders::invaders::Invaders;
 use invaders::player::Player;
 use invaders::{frame, render};
 use rusty_audio::Audio;
@@ -66,6 +67,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     // Game Loop
+    let mut invaders = Invaders::new();
     let mut player = Player::new();
     let mut instant = Instant::now();
     'gameloop: loop {
@@ -98,9 +100,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Updates
         player.update(delta);
+        if invaders.update(delta) {
+            audio.play("move");
+        }
 
         // Draw & render
-        player.draw(&mut curr_frame);
+        // player.draw(&mut curr_frame);
+        // invaders.draw(&mut curr_frame);
+        let drawables: Vec<&dyn Drawable> = vec![&player, &invaders];
+        for drawable in drawables {
+            drawable.draw(&mut curr_frame);
+        }
 
         // first few times it can fail because it will start doing it before the thread set up,
         // so the rx will not exist yet

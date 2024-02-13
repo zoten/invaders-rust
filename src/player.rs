@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use crate::{
     frame::{Drawable, Frame},
-    shot::{self, Shot},
+    shot::Shot,
     NUM_COLS, NUM_ROWS,
 };
 
