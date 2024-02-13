@@ -1,0 +1,33 @@
+use std::io::{Stdout, Write};
+
+use crossterm::{
+    cursor::MoveTo,
+    style::{Color, SetBackgroundColor},
+    terminal::{Clear, ClearType},
+    QueueableCommand,
+};
+
+use crate::frame::Frame;
+
+pub fn render(stdout: &mut Stdout, last_frame: &Frame, curr_frame: &Frame, force: bool) {
+    // force a full render
+    if force {
+        // let's queue a couple of ops to render altogether using crossterm
+        stdout.queue(SetBackgroundColor(Color::Blue)).unwrap();
+        stdout.queue(Clear(ClearType::All)).unwrap();
+        stdout.queue(SetBackgroundColor(Color::Black)).unwrap();
+    }
+
+    // now we can iterate through the frame and draw the changes
+    for (x, col) in curr_frame.iter().enumerate() {
+        for (y, s) in col.iter().enumerate() {
+            if *s != last_frame[x][y] || force {
+                // Move the cursor in the new location
+                stdout.queue(MoveTo(x as u16, y as u16)).unwrap();
+                print!("{}", *s);
+            }
+        }
+    }
+
+    stdout.flush().unwrap();
+}
